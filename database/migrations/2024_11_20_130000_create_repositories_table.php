@@ -14,7 +14,7 @@ class CreateRepositoriesTable extends Migration
     public function up()
     {
         Schema::create('repositories', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('alias')->unique();
             $table->string('source');
             $table->timestamps();

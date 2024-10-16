@@ -2,16 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Repository;
 use Illuminate\Http\Request;
-use Spatie\Valuestore\Valuestore;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Spatie\Valuestore\Valuestore;
 
 class RepositoriesController extends Controller
 {
-
     // REPO CREATION
     public function create(Request $request)
     {
@@ -22,11 +19,10 @@ class RepositoriesController extends Controller
 
         $repo = Repository::create([
             'alias' => $request->input('alias'),
-            'source' => $request->input('source')
+            'source' => $request->input('source'),
         ]);
 
-
-        $schema = Valuestore::make(storage_path('repositories/'.$repo->id.'.json'));
+        $schema = Valuestore::make(storage_path('app/private/'.sha1($repo->id).'.json'));
         $schema->flush();
 
         try {
@@ -47,7 +43,7 @@ class RepositoriesController extends Controller
                 $composer = null;
             }
 
-            if($composer) {
+            if ($composer) {
                 $schema->put(
                     [$tag->name => $composer]
                 );
@@ -72,7 +68,7 @@ class RepositoriesController extends Controller
                 $composer = null;
             }
 
-            if($composer) {
+            if ($composer) {
                 $schema->put(
                     ['dev-'.$branch->name => $composer]
                 );
@@ -91,7 +87,7 @@ class RepositoriesController extends Controller
 
         $repo = Repository::findOrFail($request->id);
 
-        $schema = Valuestore::make(storage_path('repositories/'.$repo->id.'.json'));
+        $schema = Valuestore::make(storage_path('app/private/'.sha1($repo->id).'.json'));
         $schema->flush();
 
         try {
@@ -112,7 +108,7 @@ class RepositoriesController extends Controller
                 $composer = null;
             }
 
-            if($composer) {
+            if ($composer) {
                 $schema->put(
                     [$tag->name => $composer]
                 );
@@ -137,7 +133,7 @@ class RepositoriesController extends Controller
                 $composer = null;
             }
 
-            if($composer) {
+            if ($composer) {
                 $schema->put(
                     ['dev-'.$branch->name => $composer]
                 );
@@ -147,14 +143,13 @@ class RepositoriesController extends Controller
         return 'OK';
     }
 
-
     // REPO DELETE
     public function delete(Request $request)
     {
         $repo = Repository::findOrFail($request->id);
 
         try {
-            $schema = Valuestore::make(storage_path('repositories/'.$repo->id.'.json'));
+            $schema = Valuestore::make(storage_path('app/private/'.sha1($repo->id).'.json'));
             $schema->flush();
         } catch (\Throwable $th) {
             //
@@ -169,14 +164,14 @@ class RepositoriesController extends Controller
     public function show()
     {
         $repositories = [
-            'packages' => []
+            'packages' => [],
         ];
 
         $repos = Repository::all();
 
         foreach ($repos as $repo) {
             try {
-                $versions = file_get_contents(storage_path('repositories/'.$repo->id.'.json'));
+                $versions = file_get_contents(storage_path('app/private/'.sha1($repo->id).'.json'));
             } catch (\Throwable $th) {
                 $versions = '';
             }
@@ -192,7 +187,7 @@ class RepositoriesController extends Controller
                     $composer->source = [
                         'reference' => $composer->sha,
                         'type' => 'git',
-                        'url' => 'https://github.com/'.$repo->source.'.git'
+                        'url' => 'https://github.com/'.$repo->source.'.git',
                     ];
                     $repositories['packages'][$repo->alias][$version] = $composer;
                 }
