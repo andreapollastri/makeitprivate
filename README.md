@@ -28,7 +28,7 @@ It's easy to install and use! ;)
 
 #### Getting Started
 
--   Follow dashboard the "Up & Running" steps on you dashboard!
+-   Follow dashboard the "Up & Running" steps on your dashboard!
 
 #### License
 
